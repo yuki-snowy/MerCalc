@@ -5,11 +5,14 @@ import Header from '../components/Header.astro';
 interface Props {
   title?: string;
   description?: string;
+  /** TOP はフル幅ヒーロー向け。app は本文幅を絞って中央寄せ */
+  shell?: 'top' | 'app';
 }
 
 const {
   title = 'MerCalc',
   description = '自宅内の製品・資材を可視化し、資産価値を把握する管理アプリ',
+  shell = 'app',
 } = Astro.props;
 ---
 
@@ -19,25 +22,46 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#da3e50" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap"
       rel="stylesheet"
     />
     <meta name="generator" content={Astro.generator} />
     <title>{title === 'MerCalc' ? title : `${title} | MerCalc`}</title>
   </head>
   <body>
-    <div class="mx-auto flex min-h-screen max-w-6xl flex-col px-4 pb-16 pt-6 sm:px-6 lg:px-8">
-      <Header />
-      <main class="mt-8 flex-1">
+    <div
+      class:list={[
+        'mx-auto flex min-h-dvh flex-col px-4 sm:px-6',
+        shell === 'top' ? 'max-w-3xl py-6' : 'max-w-5xl pb-20 pt-5',
+      ]}
+    >
+      {shell !== 'top' && <Header />}
+      <main
+        class:list={[
+          'flex-1',
+          shell === 'top'
+            ? 'flex flex-col items-center justify-center'
+            : 'mt-8',
+        ]}
+      >
         <slot />
       </main>
-      <footer class="mt-12 border-t border-line pt-6 text-sm text-ink-muted">
-        <p>MerCalc — 自宅内資産の可視化と中古相場の参考把握</p>
-      </footer>
+      {
+        shell !== 'top' && (
+          <footer class="mt-14 border-t-2 border-ink/10 pt-6 text-center text-sm text-ink-muted">
+            <p class="font-display">
+              MerCalc
+              <span class="mx-2 text-accent">▮</span>
+              自宅内資産の可視化と中古相場の参考把握
+            </p>
+          </footer>
+        )
+      }
     </div>
   </body>
 </html>

@@ -33,13 +33,13 @@ if (Astro.request.method === 'POST') {
 ---
 
 <Layout title="新規登録">
-  <section class="max-w-3xl">
+  <section class="text-center">
     <h1 class="font-display text-3xl font-bold">資産を登録</h1>
-    <p class="mt-1 text-sm text-ink-muted">
+    <p class="mx-auto mt-1 max-w-md text-sm text-ink-muted">
       製品名を入れるだけでカテゴリ判定や参考相場の更新ができます。
     </p>
-    <div class="mt-6">
-      <AssetForm action="/assets/new" method="POST" />
-    </div>
   </section>
+  <div class="mt-6">
+    <AssetForm action="/assets/new" method="POST" />
+  </div>
 </Layout>

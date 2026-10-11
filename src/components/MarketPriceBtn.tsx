@@ -98,7 +98,7 @@ export default function MarketPriceBtn({
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+        className="btn-beep btn-beep-accent inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? '相場を推定中…' : '中古相場を更新'}
       </button>

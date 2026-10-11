@@ -50,3 +50,11 @@ export function calcValueDiff(
   if (purchasePrice == null || marketPrice == null) return null;
   return marketPrice - purchasePrice;
 }
+
+export function formatSignedCurrency(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value)) return '—';
+  const absolute = formatCurrency(Math.abs(value));
+  if (value > 0) return `+${absolute}`;
+  if (value < 0) return `-${absolute}`;
+  return absolute;
+}

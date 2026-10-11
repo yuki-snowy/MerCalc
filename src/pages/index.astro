@@ -1,129 +1,48 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import AssetCard from '../components/AssetCard.astro';
-import { buildDashboardStats, listAssets } from '../services/assets';
-import { isDemoMode, isSupabaseConfigured } from '../lib/supabase';
-import { formatCurrency } from '../utils/formatters';
-
-const assets = await listAssets();
-const stats = buildDashboardStats(assets);
-const recentAssets = assets.slice(0, 4);
-const demoMode = isDemoMode();
-const supabaseReady = isSupabaseConfigured();
-const valueGap = stats.totalMarketValue - stats.totalPurchaseValue;
+import BrandMark from '../components/BrandMark.astro';
 ---
 
-<Layout title="ダッシュボード">
-  <section class="relative overflow-hidden rounded-2xl bg-ink px-6 py-10 text-white sm:px-10">
-    <div
-      class="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-accent/40 blur-3xl"
-      aria-hidden="true"
-    ></div>
-    <div
-      class="pointer-events-none absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-teal-200/20 blur-2xl"
-      aria-hidden="true"
-    ></div>
+<Layout title="MerCalc" shell="top">
+  <section class="flex w-full flex-col items-center justify-center text-center">
+    <div class="animate-brand-pop">
+      <BrandMark size="lg" />
+    </div>
 
-    <p class="font-display text-5xl font-extrabold tracking-tight sm:text-6xl">MerCalc</p>
-    <h1 class="mt-4 max-w-xl text-xl font-medium leading-relaxed text-white/90 sm:text-2xl">
-      家の中のモノを資産として見える化する
+    <h1 class="animate-fade-up mt-6 font-display text-6xl font-black tracking-tight sm:text-7xl">
+      Mer<span class="text-accent">Calc</span>
     </h1>
-    <p class="mt-3 max-w-lg text-sm leading-relaxed text-white/70">
-      製品名の入力からカテゴリ判定、参考中古相場の更新まで。保有資産の価値把握をすばやく回します。
+
+    <p
+      class="animate-fade-up mt-4 max-w-md font-display text-lg font-bold leading-relaxed text-ink sm:text-xl"
+      style="animation-delay: 80ms"
+    >
+      いま手元にあるモノの、だいたいの値打ち
     </p>
-    <div class="mt-7 flex flex-wrap gap-3">
+
+    <p
+      class="animate-fade-up mt-3 max-w-sm text-sm leading-relaxed text-ink-muted"
+      style="animation-delay: 140ms"
+    >
+      減価償却の目安と参考相場で、自宅の資産を見える化します。
+    </p>
+
+    <div
+      class="animate-fade-up mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+      style="animation-delay: 200ms"
+    >
       <a
-        href="/assets/new"
-        class="rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-accent-soft"
+        href="/dashboard"
+        class="btn-beep btn-beep-accent min-w-[12rem] rounded-md px-5 py-2.5 text-sm font-bold"
       >
-        資産を登録する
+        ダッシュボードへ
       </a>
       <a
         href="/assets"
-        class="rounded-md border border-white/30 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+        class="btn-beep min-w-[12rem] rounded-md bg-white px-5 py-2.5 text-sm font-bold"
       >
-        一覧を見る
+        資産一覧を見る
       </a>
     </div>
-  </section>
-
-  {
-    demoMode && (
-      <div class="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        デモモードで動作中です。
-        {supabaseReady
-          ? 'PUBLIC_DEMO_MODE=false にすると Supabase へ接続します。'
-          : 'Supabase の環境変数を設定すると永続保存に切り替えられます。'}
-      </div>
-    )
-  }
-
-  <section class="mt-8">
-    <h2 class="font-display text-2xl font-bold">資産サマリー</h2>
-    <p class="mt-1 text-sm text-ink-muted">保有数と購入額・推定相場の合計です。</p>
-
-    <div class="mt-5 grid gap-4 sm:grid-cols-3">
-      <div class="rounded-xl bg-surface-elevated p-5 shadow-panel ring-1 ring-line">
-        <p class="text-sm text-ink-muted">登録資産</p>
-        <p class="mt-2 font-display text-3xl font-bold tabular-nums">{stats.totalAssets}</p>
-      </div>
-      <div class="rounded-xl bg-surface-elevated p-5 shadow-panel ring-1 ring-line">
-        <p class="text-sm text-ink-muted">購入額合計</p>
-        <p class="mt-2 font-display text-3xl font-bold tabular-nums">
-          {formatCurrency(stats.totalPurchaseValue)}
-        </p>
-      </div>
-      <div class="rounded-xl bg-surface-elevated p-5 shadow-panel ring-1 ring-line">
-        <p class="text-sm text-ink-muted">推定相場合計</p>
-        <p class="mt-2 font-display text-3xl font-bold tabular-nums text-accent">
-          {formatCurrency(stats.totalMarketValue)}
-        </p>
-        <p class="mt-2 text-xs text-ink-muted">
-          購入対比 {valueGap >= 0 ? '+' : ''}{formatCurrency(valueGap)}
-        </p>
-      </div>
-    </div>
-  </section>
-
-  {
-    stats.categoryBreakdown.length > 0 && (
-      <section class="mt-10">
-        <h2 class="font-display text-2xl font-bold">カテゴリ別</h2>
-        <ul class="mt-4 space-y-2">
-          {stats.categoryBreakdown.map((item) => (
-            <li class="flex items-center justify-between rounded-lg bg-surface-elevated px-4 py-3 text-sm ring-1 ring-line">
-              <span class="font-medium">{item.category}</span>
-              <span class="text-ink-muted">
-                {item.count}件 / {formatCurrency(item.marketValue)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
-
-  <section class="mt-10">
-    <div class="flex items-end justify-between gap-3">
-      <div>
-        <h2 class="font-display text-2xl font-bold">最近の資産</h2>
-        <p class="mt-1 text-sm text-ink-muted">新しく登録・更新されたアイテム</p>
-      </div>
-      <a href="/assets" class="text-sm font-semibold text-accent hover:underline">すべて見る</a>
-    </div>
-
-    {
-      recentAssets.length === 0 ? (
-        <p class="mt-6 rounded-xl border border-dashed border-line bg-surface-elevated px-5 py-10 text-center text-ink-muted">
-          まだ資産がありません。まずは1件登録してみましょう。
-        </p>
-      ) : (
-        <div class="mt-5 grid gap-4 sm:grid-cols-2">
-          {recentAssets.map((asset) => (
-            <AssetCard asset={asset} />
-          ))}
-        </div>
-      )
-    }
   </section>
 </Layout>

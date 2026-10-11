@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TrendChart from '../components/charts/TrendChart.astro';
+import CategoryBars from '../components/charts/CategoryBars.astro';
+import DepreciationSignal from '../components/DepreciationSignal.astro';
+import AssetCard from '../components/AssetCard.astro';
+import { buildCategoryShares, buildMonthlyTrend } from '../services/analytics';
+import { buildDashboardStats, listAssets } from '../services/assets';
+import { buildDepreciationSummary } from '../services/depreciation';
+import { isDemoMode, isSupabaseConfigured } from '../lib/supabase';
+import { formatCurrency, formatSignedCurrency } from '../utils/formatters';
+
+const assets = await listAssets();
+const stats = buildDashboardStats(assets);
+const trend = buildMonthlyTrend(assets, 12);
+const categoryShares = buildCategoryShares(assets);
+const depreciation = buildDepreciationSummary(assets);
+const recentAssets = assets.slice(0, 5);
+const demoMode = isDemoMode();
+const supabaseReady = isSupabaseConfigured();
+---
+
+<Layout title="ダッシュボード">
+  <section class="text-center">
+    <p class="text-xs font-bold tracking-[0.18em] text-accent">DASHBOARD</p>
+    <h1 class="mt-2 font-display text-3xl font-bold">資産サマリー</h1>
+    <p class="mx-auto mt-2 max-w-md text-sm text-ink-muted">
+      推定相場・減価償却後簿価・対簿価のプラス/マイナスをまとめて確認します。
+    </p>
+  </section>
+
+  <section class="mt-8 text-center">
+    <p class="text-xs font-bold tracking-[0.18em] text-ink-muted">EST. MARKET</p>
+    <p class="mt-2 font-display text-5xl font-black tabular-nums text-accent">
+      {formatCurrency(stats.totalMarketValue)}
+    </p>
+    <p class="mt-3 text-sm text-ink-muted">
+      {stats.totalAssets} 点 · 簿価合計 {formatCurrency(depreciation.totalBookValue)}
+    </p>
+    <div class="mt-4 flex justify-center">
+      <DepreciationSignal signal={depreciation.signal} vsBook={depreciation.vsBook} />
+    </div>
+    <p class="mt-2 text-xs text-ink-muted">
+      相場 − 簿価 = {formatSignedCurrency(depreciation.vsBook)}
+      {
+        depreciation.comparableCount > 0 &&
+          `（+${depreciation.plusCount} / -${depreciation.minusCount}）`
+      }
+    </p>
+  </section>
+
+  {
+    demoMode && (
+      <p class="mt-5 text-center text-xs text-ink-muted">
+        デモモード中 —
+        {supabaseReady
+          ? 'PUBLIC_DEMO_MODE=false で Supabase 接続'
+          : '環境変数を設定すると永続保存に切替可'}
+      </p>
+    )
+  }
+
+  <section class="mt-8 border-2 border-ink bg-white px-4 py-4 text-center">
+    <h2 class="font-display text-base font-bold">減価償却の見方</h2>
+    <p class="mx-auto mt-2 max-w-lg text-sm text-ink-muted">
+      カテゴリ別の耐用年数目安で定額償却し、残存 10% を下限にした簿価です（税務計算そのものではありません）。
+    </p>
+    <p class="mt-3 text-sm font-bold tabular-nums">
+      簿価 {formatCurrency(depreciation.totalBookValue)}
+      <span class="mx-2 text-ink-muted">→</span>
+      相場 {formatCurrency(depreciation.totalMarketValue)}
+    </p>
+  </section>
+
+  <section class="mt-10 grid gap-8 lg:grid-cols-2 lg:gap-6">
+    <div class="min-w-0 border-t-4 border-accent pt-5 text-center [&_figcaption]:text-center [&_ul]:text-left">
+      <TrendChart points={trend} />
+    </div>
+    <div class="min-w-0 border-t-4 border-ink pt-5 text-center [&_figcaption]:text-center [&_ul]:text-left">
+      <CategoryBars shares={categoryShares} />
+    </div>
+  </section>
+
+  <section class="mt-14">
+    <div class="border-b-2 border-ink pb-3 text-center">
+      <h2 class="font-display text-2xl font-bold">最近の登録</h2>
+      <p class="mt-1 text-sm text-ink-muted">新しいものから最大5件</p>
+      <a href="/assets" class="mt-2 inline-block text-sm font-bold text-accent hover:underline">
+        資産一覧へ
+      </a>
+    </div>
+
+    {
+      recentAssets.length === 0 ? (
+        <p class="py-10 text-center text-sm text-ink-muted">
+          まだ資産がありません。まずは1件登録してみましょう。
+        </p>
+      ) : (
+        <ul class="mt-4 flex flex-col gap-3">
+          {recentAssets.map((asset) => (
+            <li>
+              <AssetCard asset={asset} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+
+  <div class="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+    <a
+      href="/assets/new"
+      class="btn-beep btn-beep-accent min-w-[11rem] rounded-md px-4 py-2.5 text-center text-sm font-bold"
+    >
+      新規登録
+    </a>
+    <a
+      href="/assets"
+      class="btn-beep min-w-[11rem] rounded-md bg-white px-4 py-2.5 text-center text-sm font-bold"
+    >
+      資産一覧
+    </a>
+  </div>
+</Layout>

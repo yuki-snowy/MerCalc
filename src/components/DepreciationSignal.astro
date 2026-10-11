@@ -1,0 +1,39 @@
+---
+import type { DepreciationSignal } from '../services/depreciation';
+import { SIGNAL_LABELS } from '../services/depreciation';
+import { formatSignedCurrency } from '../utils/formatters';
+
+interface Props {
+  signal: DepreciationSignal;
+  vsBook: number | null;
+  size?: 'sm' | 'md';
+}
+
+const { signal, vsBook, size = 'md' } = Astro.props;
+
+const tone =
+  signal === 'plus'
+    ? 'bg-accent text-white border-accent-deep'
+    : signal === 'minus'
+      ? 'bg-ink text-white border-ink'
+      : signal === 'flat'
+        ? 'bg-accent-soft text-accent border-accent'
+        : 'bg-white text-ink-muted border-ink/20';
+
+const signed = vsBook == null ? null : formatSignedCurrency(vsBook);
+---
+
+<span
+  class:list={[
+    'inline-flex items-center gap-1.5 border-2 font-display font-bold',
+    size === 'sm' ? 'rounded px-2 py-0.5 text-xs' : 'rounded-md px-2.5 py-1 text-sm',
+    tone,
+  ]}
+>
+  <span>対簿価 {SIGNAL_LABELS[signal]}</span>
+  {
+    signed != null && (
+      <span class="tabular-nums opacity-95">{signed}</span>
+    )
+  }
+</span>

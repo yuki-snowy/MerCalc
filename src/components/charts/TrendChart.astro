@@ -1,0 +1,145 @@
+---
+import type { MonthlyTrendPoint } from '../../services/analytics';
+import { formatCurrency } from '../../utils/formatters';
+
+interface Props {
+  points: MonthlyTrendPoint[];
+}
+
+const { points } = Astro.props;
+
+const width = 640;
+const height = 220;
+const pad = { top: 18, right: 12, bottom: 28, left: 8 };
+const innerW = width - pad.left - pad.right;
+const innerH = height - pad.top - pad.bottom;
+
+const maxValue = Math.max(
+  1,
+  ...points.map((p) => Math.max(p.cumulativePurchase, p.cumulativeMarket)),
+);
+
+function xAt(index: number): number {
+  if (points.length <= 1) return pad.left;
+  return pad.left + (innerW * index) / (points.length - 1);
+}
+
+function yAt(value: number): number {
+  return pad.top + innerH - (value / maxValue) * innerH;
+}
+
+function toPolyline(values: number[]): string {
+  return values
+    .map((value, index) => `${xAt(index)},${yAt(value)}`)
+    .join(' ');
+}
+
+function toArea(values: number[]): string {
+  if (values.length === 0) return '';
+  const line = values
+    .map((value, index) => `${xAt(index)},${yAt(value)}`)
+    .join(' ');
+  const start = `${xAt(0)},${pad.top + innerH}`;
+  const end = `${xAt(values.length - 1)},${pad.top + innerH}`;
+  return `${start} ${line} ${end}`;
+}
+
+const marketLine = toPolyline(points.map((p) => p.cumulativeMarket));
+const purchaseLine = toPolyline(points.map((p) => p.cumulativePurchase));
+const marketArea = toArea(points.map((p) => p.cumulativeMarket));
+const latest = points[points.length - 1];
+---
+
+<figure class="trend-chart">
+  <div class="mb-3 space-y-2 text-center">
+    <figcaption class="font-display text-lg font-bold">月ごとの資産推移</figcaption>
+    <p class="text-sm text-ink-muted">
+      購入日を起点にした累積保有額の見え方です
+    </p>
+    <ul class="flex flex-wrap justify-center gap-4 text-xs font-medium">
+      <li class="inline-flex items-center gap-2">
+        <span class="h-2 w-5 bg-accent"></span>
+        推定相場累計
+      </li>
+      <li class="inline-flex items-center gap-2">
+        <span class="h-0.5 w-5 border-t-2 border-dashed border-ink"></span>
+        購入額累計
+      </li>
+    </ul>
+  </div>
+
+  <svg
+    viewBox={`0 0 ${width} ${height}`}
+    class="h-auto w-full overflow-visible"
+    role="img"
+    aria-label="月次の累積購入額と推定相場の推移グラフ"
+  >
+    {
+      [0.25, 0.5, 0.75, 1].map((ratio) => (
+        <line
+          x1={pad.left}
+          x2={width - pad.right}
+          y1={yAt(maxValue * ratio)}
+          y2={yAt(maxValue * ratio)}
+          stroke="currentColor"
+          class="text-ink/10"
+          stroke-width="1"
+        />
+      ))
+    }
+
+    <polygon points={marketArea} fill="rgba(218,62,80,0.14)" />
+    <polyline
+      points={marketLine}
+      fill="none"
+      stroke="#da3e50"
+      stroke-width="3"
+      stroke-linejoin="round"
+      stroke-linecap="square"
+    />
+    <polyline
+      points={purchaseLine}
+      fill="none"
+      stroke="#2b2b2b"
+      stroke-width="2"
+      stroke-dasharray="5 4"
+      stroke-linejoin="round"
+      stroke-linecap="square"
+    />
+
+    {
+      points.map((point, index) => (
+        <g>
+          {point.purchaseSpend > 0 && (
+            <circle
+              cx={xAt(index)}
+              cy={yAt(point.cumulativeMarket)}
+              r="3.5"
+              fill="#da3e50"
+              stroke="#fff"
+              stroke-width="1.5"
+            />
+          )}
+          <text
+            x={xAt(index)}
+            y={height - 8}
+            text-anchor="middle"
+            class="fill-ink-muted"
+            style="font-size: 11px; font-family: 'Noto Sans JP', sans-serif;"
+          >
+            {point.label}
+          </text>
+        </g>
+      ))
+    }
+  </svg>
+
+  {
+    latest && (
+      <p class="mt-2 text-center text-xs text-ink-muted">
+        直近 {latest.label}: 累計購入 {formatCurrency(latest.cumulativePurchase)} /
+        累計相場 {formatCurrency(latest.cumulativeMarket)} / {latest.assetCount} 点
+      </p>
+    )
+  }
+</figure>

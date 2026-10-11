@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Syne", sans-serif;
-  --font-sans: "Source Sans 3", sans-serif;
-  --color-ink: #1c2421;
-  --color-ink-muted: #5a6b64;
-  --color-surface: #f3f6f4;
+  --font-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", sans-serif;
+  --font-sans: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  --color-ink: #2b2b2b;
+  --color-ink-muted: #6b6563;
+  --color-surface: #f7f4f2;
   --color-surface-elevated: #ffffff;
-  --color-line: #d5e0da;
-  --color-accent: #0f766e;
-  --color-accent-soft: #ccfbf1;
-  --color-warn: #b45309;
-  --color-danger: #b91c1c;
+  --color-line: #ebe4e1;
+  --color-accent: #da3e50;
+  --color-accent-soft: #ffe6ea;
+  --color-accent-deep: #b82f3f;
+  --color-warn: #c2410c;
+  --color-danger: #da3e50;
 }
 
 @layer base {
@@ -21,14 +22,20 @@
 
   body {
     @apply min-h-screen font-sans text-ink antialiased;
-    background:
-      radial-gradient(1200px 600px at 10% -10%, #d8efe8 0%, transparent 55%),
-      radial-gradient(900px 500px at 100% 0%, #e7eef8 0%, transparent 50%),
-      linear-gradient(180deg, #eef3f0 0%, var(--color-surface) 40%, #e8eee9 100%);
+    background-color: #f3f0ec;
+    background-image:
+      radial-gradient(ellipse 70% 40% at 0% 0%, rgb(218 62 80 / 0.07), transparent),
+      linear-gradient(rgb(43 43 43 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(43 43 43 / 0.03) 1px, transparent 1px);
+    background-size:
+      auto,
+      20px 20px,
+      20px 20px;
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-accent) 25%, white);
+    background: color-mix(in oklab, var(--color-accent) 28%, white);
+    color: var(--color-ink);
   }
 }
 
@@ -66,6 +73,103 @@
   }
 
   .shadow-panel {
-    box-shadow: 0 18px 40px -28px rgb(28 36 33 / 0.45);
+    box-shadow:
+      0 1px 0 rgb(43 43 43 / 0.04),
+      0 14px 28px -22px rgb(43 43 43 / 0.45);
+  }
+
+  /* ほんの少しチップチューン: 硬い影のパネル */
+  .pixel-panel {
+    border: 2px solid var(--color-ink);
+    box-shadow: 3px 3px 0 rgb(43 43 43 / 0.18);
+  }
+
+  .pixel-panel-accent {
+    border: 2px solid var(--color-accent);
+    box-shadow: 3px 3px 0 rgb(218 62 80 / 0.28);
+  }
+
+  .btn-beep {
+    border: 2px solid var(--color-ink);
+    box-shadow: 3px 3px 0 rgb(43 43 43 / 0.22);
+    transition:
+      transform 140ms steps(2, end),
+      box-shadow 140ms steps(2, end),
+      filter 140ms ease;
+  }
+
+  .btn-beep:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 rgb(43 43 43 / 0.22);
+  }
+
+  .btn-beep:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgb(43 43 43 / 0.22);
+  }
+
+  .btn-beep-accent {
+    border-color: var(--color-accent-deep);
+    background-color: var(--color-accent);
+    color: #fff;
+    box-shadow: 3px 3px 0 rgb(184 47 63 / 0.45);
+  }
+
+  .btn-beep-accent:hover {
+    filter: brightness(1.04);
+    box-shadow: 4px 4px 0 rgb(184 47 63 / 0.45);
+  }
+
+  .btn-beep-accent:active {
+    box-shadow: 1px 1px 0 rgb(184 47 63 / 0.45);
+  }
+
+  .chip-dot {
+    width: 8px;
+    height: 8px;
+    image-rendering: pixelated;
+  }
+
+  .animate-brand-pop {
+    animation: brand-pop 640ms steps(3, end) both;
+  }
+
+  .animate-fade-up {
+    animation: fade-up 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes brand-pop {
+  0% {
+    transform: scale(0.92) translateY(4px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.03) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-brand-pop,
+  .animate-fade-up,
+  .btn-beep {
+    animation: none !important;
+    transition: none !important;
   }
 }

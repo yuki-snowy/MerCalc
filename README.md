@@ -64,8 +64,9 @@ PUBLIC_DEMO_MODE=false
 
 | パス | 内容 |
 | --- | --- |
-| `/` | ダッシュボード |
-| `/assets` | 資産一覧 |
+| `/` | TOP（ロゴ・キャッチ） |
+| `/dashboard` | ダッシュボード（集計・グラフ） |
+| `/assets` | 資産一覧（1カラム横長リスト） |
 | `/assets/new` | 新規登録 |
 | `/assets/[id]` | 詳細・編集 |
 | `/api/auto-category` | カテゴリ自動判定 |

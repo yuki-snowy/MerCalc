@@ -1,8 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AssetCard from '../../components/AssetCard.astro';
+import Pagination from '../../components/Pagination.astro';
 import { listAssets } from '../../services/assets';
 import { ASSET_CATEGORIES } from '../../types/asset';
+
+const PAGE_SIZE = 5;
 
 const assets = await listAssets();
 const selectedCategory = Astro.url.searchParams.get('category') ?? 'all';
@@ -10,30 +13,32 @@ const filtered =
   selectedCategory === 'all'
     ? assets
     : assets.filter((asset) => asset.category === selectedCategory);
+
+const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+const requestedPage = Number.parseInt(Astro.url.searchParams.get('page') ?? '1', 10);
+const page = Number.isFinite(requestedPage)
+  ? Math.min(Math.max(requestedPage, 1), totalPages)
+  : 1;
+const start = (page - 1) * PAGE_SIZE;
+const pageItems = filtered.slice(start, start + PAGE_SIZE);
 ---
 
 <Layout title="資産一覧">
-  <section class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <h1 class="font-display text-3xl font-bold">資産一覧</h1>
-      <p class="mt-1 text-sm text-ink-muted">
-        {filtered.length} / {assets.length} 件を表示
-      </p>
-    </div>
-    <a
-      href="/assets/new"
-      class="inline-flex rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
-    >
-      新規登録
-    </a>
+  <section class="text-center">
+    <h1 class="font-display text-3xl font-bold">資産一覧</h1>
+    <p class="mt-1 text-sm text-ink-muted">
+      {filtered.length} 件中 {filtered.length === 0 ? 0 : start + 1}–
+      {Math.min(start + PAGE_SIZE, filtered.length)} 件を表示
+      {totalPages > 1 && `（${page} / ${totalPages} ページ）`}
+    </p>
   </section>
 
-  <form method="GET" class="mt-6 flex flex-wrap items-center gap-2">
+  <form method="GET" class="mt-6 flex flex-wrap items-center justify-center gap-2">
     <label class="text-sm text-ink-muted" for="category">カテゴリ</label>
     <select
       id="category"
       name="category"
-      class="rounded-md border border-line bg-surface-elevated px-3 py-2 text-sm outline-none ring-accent/30 focus:ring-2"
+      class="rounded-md border-2 border-line bg-white px-3 py-2 text-sm outline-none focus:border-accent"
       onchange="this.form.submit()"
     >
       <option value="all" selected={selectedCategory === 'all'}>すべて</option>
@@ -48,16 +53,24 @@ const filtered =
   </form>
 
   {
-    filtered.length === 0 ? (
-      <p class="mt-8 rounded-xl border border-dashed border-line bg-surface-elevated px-5 py-12 text-center text-ink-muted">
+    pageItems.length === 0 ? (
+      <p class="mt-8 border-2 border-dashed border-line bg-white px-5 py-12 text-center text-ink-muted">
         該当する資産がありません。
       </p>
     ) : (
-      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((asset) => (
-          <AssetCard asset={asset} />
+      <ul class="mt-6 flex flex-col gap-3">
+        {pageItems.map((asset) => (
+          <li>
+            <AssetCard asset={asset} />
+          </li>
         ))}
-      </div>
+      </ul>
     )
   }
+
+  <Pagination
+    page={page}
+    totalPages={totalPages}
+    query={{ category: selectedCategory }}
+  />
 </Layout>

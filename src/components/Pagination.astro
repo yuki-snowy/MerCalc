@@ -1,0 +1,67 @@
+---
+interface Props {
+  page: number;
+  totalPages: number;
+  /** ページ番号以外のクエリ（category など） */
+  query?: Record<string, string | undefined>;
+  basePath?: string;
+}
+
+const { page, totalPages, query = {}, basePath = '/assets' } = Astro.props;
+
+function hrefFor(target: number): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value && value !== 'all') params.set(key, value);
+  }
+  if (target > 1) params.set('page', String(target));
+  const qs = params.toString();
+  return qs ? `${basePath}?${qs}` : basePath;
+}
+
+const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+const canPrev = page > 1;
+const canNext = page < totalPages;
+---
+
+{
+  totalPages > 1 && (
+    <nav
+      class="mt-8 flex flex-wrap items-center justify-center gap-2"
+      aria-label="ページネーション"
+    >
+      {canPrev ? (
+        <a href={hrefFor(page - 1)} class="btn-beep rounded-md bg-white px-3 py-1.5 text-sm font-medium text-ink">
+          前へ
+        </a>
+      ) : (
+        <span class="btn-beep rounded-md bg-white/60 px-3 py-1.5 text-sm font-medium text-ink-muted opacity-50">
+          前へ
+        </span>
+      )}
+
+      {pages.map((n) => (
+        <a
+          href={hrefFor(n)}
+          class:list={[
+            'btn-beep min-w-9 rounded-md px-2.5 py-1.5 text-center text-sm font-bold',
+            n === page ? 'btn-beep-accent' : 'bg-white text-ink-muted hover:text-ink',
+          ]}
+          aria-current={n === page ? 'page' : undefined}
+        >
+          {n}
+        </a>
+      ))}
+
+      {canNext ? (
+        <a href={hrefFor(page + 1)} class="btn-beep rounded-md bg-white px-3 py-1.5 text-sm font-medium text-ink">
+          次へ
+        </a>
+      ) : (
+        <span class="btn-beep rounded-md bg-white/60 px-3 py-1.5 text-sm font-medium text-ink-muted opacity-50">
+          次へ
+        </span>
+      )}
+    </nav>
+  )
+}
