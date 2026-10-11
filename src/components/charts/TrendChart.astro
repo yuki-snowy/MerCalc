@@ -9,8 +9,8 @@ interface Props {
 const { points } = Astro.props;
 
 const width = 640;
-const height = 220;
-const pad = { top: 18, right: 12, bottom: 28, left: 8 };
+const height = 180;
+const pad = { top: 12, right: 12, bottom: 24, left: 8 };
 const innerW = width - pad.left - pad.right;
 const innerH = height - pad.top - pad.bottom;
 
@@ -51,12 +51,12 @@ const latest = points[points.length - 1];
 ---
 
 <figure class="trend-chart">
-  <div class="mb-4 space-y-1.5 text-center lg:text-left">
-    <figcaption class="font-display text-lg font-bold">月ごとの資産推移</figcaption>
+  <div class="mb-2 space-y-1 text-center lg:text-left">
+    <figcaption class="font-display text-base font-bold">月ごとの資産推移</figcaption>
     <p class="text-sm text-ink-muted">
       購入日を起点にした累積保有額
     </p>
-    <ul class="flex flex-wrap justify-center gap-4 text-xs font-medium lg:justify-start">
+    <ul class="flex flex-wrap justify-center gap-3 text-xs font-medium lg:justify-start">
       <li class="inline-flex items-center gap-2">
         <span class="h-2 w-5 bg-accent"></span>
         推定相場累計
@@ -136,7 +136,7 @@ const latest = points[points.length - 1];
 
   {
     latest && (
-      <p class="mt-2 text-center text-xs text-ink-muted lg:text-left">
+      <p class="mt-1.5 text-center text-xs text-ink-muted lg:text-left">
         直近 {latest.label}: 累計購入 {formatCurrency(latest.cumulativePurchase)} /
         累計相場 {formatCurrency(latest.cumulativeMarket)} / {latest.assetCount} 点
       </p>
