@@ -3,6 +3,7 @@ import type { Asset } from '../types/asset';
 import { CONDITION_LABELS } from '../types/asset';
 import { calcAssetDepreciation } from '../services/depreciation';
 import { formatCurrency, formatSignedCurrency } from '../utils/formatters';
+import { buildMercariSearchUrl } from '../utils/mercari';
 import DepreciationSignal from './DepreciationSignal.astro';
 import AssetThumb from './AssetThumb.astro';
 
@@ -12,66 +13,81 @@ interface Props {
 
 const { asset } = Astro.props;
 const depreciation = calcAssetDepreciation(asset);
+const mercariSearchUrl = buildMercariSearchUrl(asset.name);
 ---
 
-<a
-  href={`/assets/${asset.id}`}
-  class="group flex w-full items-center gap-3 border-2 border-ink/10 bg-white px-3 py-3 text-left transition hover:border-accent hover:bg-accent-soft/30 hover:shadow-[3px_3px_0_rgba(218,62,80,0.2)] sm:gap-4 sm:px-4"
+<div
+  class="flex w-full items-stretch gap-2 border-2 border-ink/10 bg-white px-3 py-3 transition hover:border-accent hover:bg-accent-soft/30 hover:shadow-[3px_3px_0_rgba(218,62,80,0.2)] sm:gap-3 sm:px-4"
 >
-  <AssetThumb asset={asset} />
+  <a
+    href={`/assets/${asset.id}`}
+    class="group flex min-w-0 flex-1 items-center gap-3 text-left no-underline sm:gap-4"
+  >
+    <AssetThumb asset={asset} />
 
-  <div class="min-w-0 flex-1">
-    <div class="flex flex-wrap items-center gap-2">
-      <p class="font-display text-xs font-bold text-accent">{asset.category}</p>
-      <span class="rounded bg-accent-soft px-1.5 py-0.5 text-[10px] font-bold text-accent">
-        {CONDITION_LABELS[asset.condition]}
-      </span>
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <p class="font-display text-xs font-bold text-accent">{asset.category}</p>
+        <span class="rounded bg-accent-soft px-1.5 py-0.5 text-[10px] font-bold text-accent">
+          {CONDITION_LABELS[asset.condition]}
+        </span>
+      </div>
+      <h3 class="mt-0.5 truncate font-display text-base font-bold leading-snug text-ink sm:text-lg">
+        {asset.name}
+      </h3>
+      {
+        asset.brand && (
+          <p class="truncate text-xs text-ink-muted">{asset.brand}</p>
+        )
+      }
     </div>
-    <h3 class="mt-0.5 truncate font-display text-base font-bold leading-snug text-ink sm:text-lg">
-      {asset.name}
-    </h3>
-    {
-      asset.brand && (
-        <p class="truncate text-xs text-ink-muted">{asset.brand}</p>
-      )
-    }
-  </div>
 
-  <div class="hidden shrink-0 flex-col items-end gap-1 sm:flex">
-    <DepreciationSignal
-      signal={depreciation.signal}
-      vsBook={depreciation.vsBook}
-      size="sm"
-    />
-    <dl class="mt-1 grid grid-cols-2 gap-x-3 text-right text-xs">
-      <div>
-        <dt class="text-ink-muted">簿価</dt>
-        <dd class="font-bold tabular-nums">{formatCurrency(depreciation.bookValue)}</dd>
-      </div>
-      <div>
-        <dt class="text-ink-muted">相場</dt>
-        <dd class="font-bold tabular-nums text-accent">
-          {formatCurrency(asset.market_price)}
-        </dd>
-      </div>
-    </dl>
-  </div>
+    <div class="hidden shrink-0 flex-col items-end gap-1 sm:flex">
+      <DepreciationSignal
+        signal={depreciation.signal}
+        vsBook={depreciation.vsBook}
+        size="sm"
+      />
+      <dl class="mt-1 grid grid-cols-2 gap-x-3 text-right text-xs">
+        <div>
+          <dt class="text-ink-muted">簿価</dt>
+          <dd class="font-bold tabular-nums">{formatCurrency(depreciation.bookValue)}</dd>
+        </div>
+        <div>
+          <dt class="text-ink-muted">相場</dt>
+          <dd class="font-bold tabular-nums text-accent">
+            {formatCurrency(asset.market_price)}
+          </dd>
+        </div>
+      </dl>
+    </div>
 
-  <div class="flex shrink-0 flex-col items-end text-right sm:hidden">
-    <p class="text-sm font-bold tabular-nums text-accent">
-      {formatCurrency(asset.market_price)}
-    </p>
-    <p
-      class:list={[
-        'mt-0.5 text-xs font-bold tabular-nums',
-        depreciation.signal === 'plus'
-          ? 'text-accent'
-          : depreciation.signal === 'minus'
-            ? 'text-ink'
-            : 'text-ink-muted',
-      ]}
-    >
-      {formatSignedCurrency(depreciation.vsBook)}
-    </p>
-  </div>
-</a>
+    <div class="flex shrink-0 flex-col items-end text-right sm:hidden">
+      <p class="text-sm font-bold tabular-nums text-accent">
+        {formatCurrency(asset.market_price)}
+      </p>
+      <p
+        class:list={[
+          'mt-0.5 text-xs font-bold tabular-nums',
+          depreciation.signal === 'plus'
+            ? 'text-accent'
+            : depreciation.signal === 'minus'
+              ? 'text-ink'
+              : 'text-ink-muted',
+        ]}
+      >
+        {formatSignedCurrency(depreciation.vsBook)}
+      </p>
+    </div>
+  </a>
+
+  <a
+    href={mercariSearchUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="btn-beep flex shrink-0 items-center self-center rounded-md bg-white px-2.5 py-2 text-center text-[11px] font-bold leading-tight text-accent sm:px-3 sm:text-xs"
+    aria-label={`${asset.name} をメ〇カリで検索`}
+  >
+    メ〇カリで検索
+  </a>
+</div>

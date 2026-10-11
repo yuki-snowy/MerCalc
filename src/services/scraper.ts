@@ -7,6 +7,7 @@
  */
 
 import type { AssetCategory, AssetCondition } from '../types/asset';
+import { buildMercariSearchUrl } from '../utils/mercari';
 import { suggestCategory } from './category';
 
 export interface MarketPriceResult {
@@ -44,14 +45,6 @@ function hashSeed(input: string): number {
     hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
   }
   return hash;
-}
-
-function buildMercariSearchUrl(query: string): string {
-  const params = new URLSearchParams({
-    keyword: query,
-    status: 'sold_out',
-  });
-  return `https://jp.mercari.com/search?${params.toString()}`;
 }
 
 function estimateFromPurchase(
