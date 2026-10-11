@@ -1,6 +1,7 @@
 ---
 import type { Asset } from '../types/asset';
 import { ASSET_CATEGORIES, ASSET_CONDITIONS, CONDITION_LABELS } from '../types/asset';
+import { buildMercariSearchUrl } from '../utils/mercari';
 import MarketPriceBtn from './MarketPriceBtn';
 
 interface Props {
@@ -11,6 +12,9 @@ interface Props {
 
 const { asset = null, action, method = 'POST' } = Astro.props;
 const isEdit = Boolean(asset);
+const initialMercariUrl = asset?.name
+  ? buildMercariSearchUrl(asset.name)
+  : 'https://jp.mercari.com/search';
 ---
 
 <form
@@ -24,14 +28,14 @@ const isEdit = Boolean(asset);
   <div class="grid gap-5 sm:grid-cols-2">
     <label class="block sm:col-span-2">
       <span class="mb-1.5 block text-sm font-medium text-ink">製品名</span>
-      <div class="flex flex-col gap-2 sm:flex-row">
+      <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <input
           id="name"
           name="name"
           required
           value={asset?.name ?? ''}
           placeholder="例: iPad Air (第5世代)"
-          class="w-full rounded-md border-2 border-line bg-white px-3 py-2.5 text-ink outline-none focus:border-accent"
+          class="w-full rounded-md border-2 border-line bg-white px-3 py-2.5 text-ink outline-none focus:border-accent sm:min-w-[14rem] sm:flex-1"
         />
         <button
           type="button"
@@ -40,6 +44,15 @@ const isEdit = Boolean(asset);
         >
           カテゴリ自動判定
         </button>
+        <a
+          id="mercari-search-btn"
+          href={initialMercariUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-beep flex shrink-0 items-center justify-center rounded-md bg-white px-3 py-2.5 text-center text-sm font-bold text-accent"
+        >
+          メ〇カリで検索
+        </a>
       </div>
       <p id="category-hint" class="mt-1.5 text-xs text-ink-muted"></p>
     </label>
@@ -174,10 +187,34 @@ const isEdit = Boolean(asset);
 </form>
 
 <script>
+  import { buildMercariSearchUrl } from '../utils/mercari';
+
   const nameInput = document.getElementById('name') as HTMLInputElement | null;
   const categorySelect = document.getElementById('category') as HTMLSelectElement | null;
   const hint = document.getElementById('category-hint');
   const autoBtn = document.getElementById('auto-category-btn');
+  const mercariBtn = document.getElementById(
+    'mercari-search-btn',
+  ) as HTMLAnchorElement | null;
+
+  const syncMercariLink = () => {
+    if (!mercariBtn) return;
+    const name = nameInput?.value.trim() ?? '';
+    mercariBtn.href = name
+      ? buildMercariSearchUrl(name)
+      : 'https://jp.mercari.com/search';
+  };
+
+  nameInput?.addEventListener('input', syncMercariLink);
+  mercariBtn?.addEventListener('click', (event) => {
+    const name = nameInput?.value.trim() ?? '';
+    if (!name) {
+      event.preventDefault();
+      if (hint) hint.textContent = '製品名を入力してください';
+      return;
+    }
+    syncMercariLink();
+  });
 
   autoBtn?.addEventListener('click', async () => {
     if (!nameInput?.value.trim()) {
