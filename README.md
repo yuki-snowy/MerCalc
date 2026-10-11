@@ -79,17 +79,56 @@ PUBLIC_DEMO_MODE=false
 | `npm run build` | 本番ビルド |
 | `npm run preview` | ビルド結果のプレビュー |
 | `npm run check` | Astro / TS チェック |
+| `npm run test` | 単体・結合テスト（1回実行） |
+| `npm run test:watch` | 監視モード（TDD 向け） |
+| `npm run test:coverage` | カバレッジ付きテスト |
+| `npm run ci` | check → test → build（ローカルで CI 相当） |
+
+## テスト工程（現場寄りの進め方）
+
+このリポジトリでは、実務でよくあるテストの層分けを採用しています。
+
+| 層 | 対象 | 置き場 | 目的 |
+| --- | --- | --- | --- |
+| 単体テスト | `formatters` / `category` / `scraper` / `assets` | ソース横の `*.test.ts` | 仕様の回帰を早く安く検知 |
+| コンポーネントテスト | `MarketPriceBtn` | `*.test.tsx` + jsdom | ユーザー操作と表示の確認 |
+| API 結合テスト | `/api/*` | `tests/api/` | 入出力契約（status / JSON）の固定 |
+| CI | GitHub Actions | `.github/workflows/ci.yml` | PR/push で自動検証 |
+
+### ローカルでの基本フロー
+
+```bash
+# 1. 実装しながら（赤→緑→リファクタ）
+npm run test:watch
+
+# 2. コミット前のセルフチェック
+npm run ci
+```
+
+### CI で回していること
+
+1. `npm ci`（ロックファイルどおりに依存関係を再現）
+2. `npm run check`（型・Astro チェック）
+3. `npm run test:coverage`（テスト + カバレッジ成果物）
+4. `npm run build`（本番ビルドが通ること）
+
+> 補足: E2E（Playwright 等）は未導入です。画面遷移全体の自動確認が必要になった段階で追加するのが、個人〜小規模チームではよくある進め方です。
 
 ## ディレクトリ
 
 ```text
 src/
-├── components/     # UI (Astro / React)
+├── components/     # UI (Astro / React) + コンポーネントテスト
 ├── layouts/        # 共通レイアウト
 ├── lib/            # Supabase / デモストア
 ├── pages/          # ルーティング & API
-├── services/       # ビジネスロジック
+├── services/       # ビジネスロジック + 単体テスト
 ├── types/          # 型定義
-└── utils/          # フォーマッタ
+└── utils/          # フォーマッタ + 単体テスト
+tests/
+├── api/            # API 結合テスト
+├── helpers/        # テスト用ヘルパー
+└── setup.ts        # 共通セットアップ
+.github/workflows/  # CI
 supabase/migrations/
 ```
