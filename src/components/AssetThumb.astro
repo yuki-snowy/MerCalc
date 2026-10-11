@@ -1,5 +1,6 @@
 ---
 import type { Asset } from '../types/asset';
+import { resolveAssetImageUrl } from '../utils/images';
 
 interface Props {
   asset: Asset;
@@ -8,28 +9,14 @@ interface Props {
 
 const { asset, size = 'sm' } = Astro.props;
 const dim = size === 'md' ? 'h-16 w-16' : 'h-14 w-14';
-const initial = asset.name.trim().slice(0, 1) || '資';
+const src = resolveAssetImageUrl(asset);
 ---
 
-{
-  asset.image_url ? (
-    <img
-      src={asset.image_url}
-      alt=""
-      width="56"
-      height="56"
-      class:list={[dim, 'shrink-0 border-2 border-ink/15 object-cover bg-white']}
-      loading="lazy"
-    />
-  ) : (
-    <span
-      class:list={[
-        dim,
-        'inline-flex shrink-0 items-center justify-center border-2 border-ink/15 bg-accent-soft font-display text-lg font-bold text-accent',
-      ]}
-      aria-hidden="true"
-    >
-      {initial}
-    </span>
-  )
-}
+<img
+  src={src}
+  alt=""
+  width="56"
+  height="56"
+  class:list={[dim, 'shrink-0 border-2 border-ink/15 object-cover bg-white']}
+  loading="lazy"
+/>

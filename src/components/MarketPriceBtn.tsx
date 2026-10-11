@@ -93,12 +93,12 @@ export default function MarketPriceBtn({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="w-full space-y-2 sm:w-auto">
       <button
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className="btn-beep btn-beep-accent inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60"
+        className="btn-beep btn-beep-accent inline-flex w-full items-center justify-center whitespace-nowrap rounded-md px-4 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
         {loading ? '相場を推定中…' : '中古相場を更新'}
       </button>
@@ -108,14 +108,13 @@ export default function MarketPriceBtn({
       )}
 
       {result && (
-        <div className="rounded-lg bg-accent-soft px-3 py-3 text-sm text-ink">
+        <div className="rounded-lg bg-accent-soft px-3 py-3 text-sm text-ink sm:min-w-[16rem]">
           <p className="font-semibold tabular-nums">
             推定相場: ¥{result.estimatedPrice.toLocaleString('ja-JP')}
             <span className="ml-2 font-normal text-ink-muted">
               (信頼度 {(result.confidence * 100).toFixed(0)}%)
             </span>
           </p>
-          <p className="mt-1 text-ink-muted">{result.note}</p>
           <a
             href={result.searchUrl}
             target="_blank"
