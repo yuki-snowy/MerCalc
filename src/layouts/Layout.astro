@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Header from '../components/Header.astro';
+import MobileTabBar from '../components/MobileTabBar.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 
 interface Props {
@@ -39,7 +40,9 @@ const {
     <div
       class:list={[
         'mx-auto flex min-h-dvh flex-col px-4 sm:px-6',
-        shell === 'top' ? 'max-w-3xl py-6' : 'max-w-5xl pb-20 pt-8',
+        shell === 'top'
+          ? 'max-w-3xl py-6'
+          : 'max-w-5xl pb-28 pt-8 sm:pb-20',
       ]}
     >
       <main
@@ -52,16 +55,17 @@ const {
       </main>
       {
         shell !== 'top' && (
-          <footer class="mt-14 border-t border-ink/10 pt-6 text-center text-sm text-ink-muted">
+          <footer class="mt-14 border-t border-ink/10 pt-6 text-center text-sm text-ink-muted max-sm:mb-2">
             <p class="font-display">
               MerCalc
               <span class="mx-2 text-accent">▮</span>
-              自宅内資産の可視化と中古相場の参考把握
+              家の中のモノ、いまいくら？
             </p>
           </footer>
         )
       }
     </div>
+    {shell !== 'top' && <MobileTabBar />}
     {shell !== 'top' && <ScrollToTop />}
   </body>
 </html>

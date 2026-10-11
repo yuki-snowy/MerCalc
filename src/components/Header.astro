@@ -1,19 +1,16 @@
 ---
 import BrandMark from './BrandMark.astro';
+import { APP_NAV_LINKS, isAppNavActive } from '../utils/nav';
 
 const pathname = Astro.url.pathname;
-
-const links = [
-  { href: '/dashboard', label: 'ダッシュボード' },
-  { href: '/assets', label: '資産一覧' },
-  { href: '/assets/new', label: '新規登録' },
-];
 ---
 
 <header
   class="site-header sticky top-0 z-50 border-b border-ink/10 backdrop-blur-md"
 >
-  <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+  <div
+    class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6"
+  >
     <a href="/" class="inline-flex shrink-0 items-center gap-2 no-underline">
       <BrandMark size="sm" />
       <span class="font-display text-xl font-black tracking-tight">
@@ -21,16 +18,13 @@ const links = [
       </span>
     </a>
 
-    <nav aria-label="メインナビ" class="flex flex-wrap items-center justify-end gap-2">
+    <nav
+      aria-label="メインナビ"
+      class="hidden flex-wrap items-center justify-end gap-2 sm:flex"
+    >
       {
-        links.map((link) => {
-          const active =
-            link.href === '/dashboard'
-              ? pathname === '/dashboard'
-              : link.href === '/assets'
-                ? pathname === '/assets' ||
-                  (pathname.startsWith('/assets/') && pathname !== '/assets/new')
-                : pathname === link.href;
+        APP_NAV_LINKS.map((link) => {
+          const active = isAppNavActive(link.href, pathname);
           return (
             <a
               href={link.href}
@@ -40,6 +34,7 @@ const links = [
                   ? 'btn-beep-accent'
                   : 'bg-white/80 text-ink-muted hover:text-ink',
               ]}
+              aria-current={active ? 'page' : undefined}
             >
               {link.label}
             </a>

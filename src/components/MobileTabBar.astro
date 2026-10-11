@@ -1,0 +1,52 @@
+---
+import { APP_NAV_LINKS, isAppNavActive } from '../utils/nav';
+
+const pathname = Astro.url.pathname;
+
+const icons: Record<string, string> = {
+  '/dashboard': 'M4 11l8-7 8 7M6 10v9h4v-5h4v5h4v-9',
+  '/assets': 'M4 6h16M4 12h16M4 18h10',
+  '/assets/new': 'M12 5v14M5 12h14',
+};
+---
+
+<nav
+  class="mobile-tab-bar fixed inset-x-0 bottom-0 z-50 border-t-2 border-ink bg-ink text-white sm:hidden"
+  aria-label="メインナビ"
+  style="padding-bottom: env(safe-area-inset-bottom, 0px);"
+>
+  <ul class="mx-auto grid max-w-lg grid-cols-3">
+    {
+      APP_NAV_LINKS.map((link) => {
+        const active = isAppNavActive(link.href, pathname);
+        return (
+          <li>
+            <a
+              href={link.href}
+              class:list={[
+                'flex flex-col items-center justify-center gap-1 px-2 py-2.5 text-[11px] font-bold tracking-wide no-underline transition',
+                active ? 'text-accent' : 'text-white/85 hover:text-white',
+              ]}
+              aria-current={active ? 'page' : undefined}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="square"
+                stroke-linejoin="miter"
+                class="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path d={icons[link.href]} />
+              </svg>
+              <span>{link.shortLabel}</span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>
