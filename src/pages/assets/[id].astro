@@ -1,0 +1,112 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AssetForm from '../../components/AssetForm.astro';
+import { deleteAsset, getAssetById, updateAsset } from '../../services/assets';
+import { parseOptionalInt, formatCurrency, formatDateTime } from '../../utils/formatters';
+import { CONDITION_LABELS, type AssetCondition } from '../../types/asset';
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/assets');
+}
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const method = String(form.get('_method') ?? 'PUT').toUpperCase();
+
+  if (method === 'DELETE') {
+    await deleteAsset(id);
+    return Astro.redirect('/assets');
+  }
+
+  await updateAsset(id, {
+    name: String(form.get('name') ?? '').trim(),
+    category: String(form.get('category') ?? '').trim(),
+    brand: String(form.get('brand') ?? '').trim() || null,
+    purchase_price: parseOptionalInt(String(form.get('purchase_price') ?? '')),
+    purchase_date: String(form.get('purchase_date') ?? '').trim() || null,
+    market_price: parseOptionalInt(String(form.get('market_price') ?? '')),
+    condition: (String(form.get('condition') ?? 'good') as AssetCondition) || 'good',
+    notes: String(form.get('notes') ?? '').trim() || null,
+    image_url: String(form.get('image_url') ?? '').trim() || null,
+  });
+
+  return Astro.redirect(`/assets/${id}`);
+}
+
+const asset = await getAssetById(id);
+if (!asset) {
+  return Astro.redirect('/assets');
+}
+---
+
+<Layout title={asset.name}>
+  <section class="mb-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+        {asset.category}
+      </p>
+      <h1 class="mt-2 font-display text-3xl font-bold sm:text-4xl">{asset.name}</h1>
+      {
+        asset.brand && (
+          <p class="mt-2 text-ink-muted">{asset.brand}</p>
+        )
+      }
+      <dl class="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+        <div class="rounded-lg bg-surface-elevated p-4 ring-1 ring-line">
+          <dt class="text-ink-muted">購入価格</dt>
+          <dd class="mt-1 text-lg font-semibold tabular-nums">
+            {formatCurrency(asset.purchase_price)}
+          </dd>
+        </div>
+        <div class="rounded-lg bg-surface-elevated p-4 ring-1 ring-line">
+          <dt class="text-ink-muted">推定相場</dt>
+          <dd class="mt-1 text-lg font-semibold tabular-nums text-accent">
+            {formatCurrency(asset.market_price)}
+          </dd>
+        </div>
+        <div class="rounded-lg bg-surface-elevated p-4 ring-1 ring-line">
+          <dt class="text-ink-muted">状態</dt>
+          <dd class="mt-1 text-lg font-semibold">
+            {CONDITION_LABELS[asset.condition]}
+          </dd>
+        </div>
+      </dl>
+      <p class="mt-3 text-xs text-ink-muted">
+        相場更新: {formatDateTime(asset.market_price_updated_at)}
+      </p>
+    </div>
+
+    {
+      asset.image_url ? (
+        <img
+          src={asset.image_url}
+          alt={asset.name}
+          class="h-64 w-full rounded-xl object-cover ring-1 ring-line"
+        />
+      ) : (
+        <div class="flex h-64 items-center justify-center rounded-xl bg-accent-soft text-sm text-accent ring-1 ring-line">
+          画像未設定
+        </div>
+      )
+    }
+  </section>
+
+  <section class="max-w-3xl">
+    <h2 class="font-display text-2xl font-bold">編集</h2>
+    <div class="mt-4">
+      <AssetForm asset={asset} action={`/assets/${asset.id}`} method="PUT" />
+    </div>
+
+    <form method="POST" action={`/assets/${asset.id}`} class="mt-6">
+      <input type="hidden" name="_method" value="DELETE" />
+      <button
+        type="submit"
+        class="rounded-md border border-[color:var(--color-danger)] px-4 py-2 text-sm font-semibold text-[color:var(--color-danger)] transition hover:bg-red-50"
+        onclick="return confirm('この資産を削除しますか？');"
+      >
+        資産を削除
+      </button>
+    </form>
+  </section>
+</Layout>

@@ -1,0 +1,64 @@
+---
+import type { Asset } from '../types/asset';
+import { CONDITION_LABELS } from '../types/asset';
+import { calcValueDiff, formatCurrency, formatDate } from '../utils/formatters';
+
+interface Props {
+  asset: Asset;
+}
+
+const { asset } = Astro.props;
+const diff = calcValueDiff(asset.purchase_price, asset.market_price);
+---
+
+<a
+  href={`/assets/${asset.id}`}
+  class="group block rounded-xl bg-surface-elevated p-5 shadow-panel ring-1 ring-line transition duration-300 hover:-translate-y-1 hover:ring-accent/40"
+>
+  <div class="flex items-start justify-between gap-3">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+        {asset.category}
+      </p>
+      <h3 class="mt-2 font-display text-xl font-bold leading-snug text-ink">
+        {asset.name}
+      </h3>
+      {
+        asset.brand && (
+          <p class="mt-1 text-sm text-ink-muted">{asset.brand}</p>
+        )
+      }
+    </div>
+    <span class="rounded-md bg-accent-soft px-2 py-1 text-xs font-medium text-accent">
+      {CONDITION_LABELS[asset.condition]}
+    </span>
+  </div>
+
+  <dl class="mt-5 grid grid-cols-2 gap-3 text-sm">
+    <div>
+      <dt class="text-ink-muted">購入価格</dt>
+      <dd class="mt-1 font-semibold tabular-nums">{formatCurrency(asset.purchase_price)}</dd>
+    </div>
+    <div>
+      <dt class="text-ink-muted">推定相場</dt>
+      <dd class="mt-1 font-semibold tabular-nums text-accent">
+        {formatCurrency(asset.market_price)}
+      </dd>
+    </div>
+    <div>
+      <dt class="text-ink-muted">購入日</dt>
+      <dd class="mt-1">{formatDate(asset.purchase_date)}</dd>
+    </div>
+    <div>
+      <dt class="text-ink-muted">評価差額</dt>
+      <dd
+        class:list={[
+          'mt-1 font-semibold tabular-nums',
+          diff == null ? 'text-ink-muted' : diff >= 0 ? 'text-accent' : 'text-[color:var(--color-warn)]',
+        ]}
+      >
+        {diff == null ? '—' : `${diff >= 0 ? '+' : ''}${formatCurrency(diff)}`}
+      </dd>
+    </div>
+  </dl>
+</a>

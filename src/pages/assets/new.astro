@@ -1,0 +1,45 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AssetForm from '../../components/AssetForm.astro';
+import { createAsset } from '../../services/assets';
+import { suggestCategory } from '../../services/category';
+import { parseOptionalInt } from '../../utils/formatters';
+import type { AssetCondition } from '../../types/asset';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const name = String(form.get('name') ?? '').trim();
+  let category = String(form.get('category') ?? '').trim();
+
+  if (!category) {
+    category = suggestCategory(name).category;
+  }
+
+  const asset = await createAsset({
+    user_id: null,
+    name,
+    category,
+    brand: String(form.get('brand') ?? '').trim() || null,
+    purchase_price: parseOptionalInt(String(form.get('purchase_price') ?? '')),
+    purchase_date: String(form.get('purchase_date') ?? '').trim() || null,
+    market_price: parseOptionalInt(String(form.get('market_price') ?? '')),
+    condition: (String(form.get('condition') ?? 'good') as AssetCondition) || 'good',
+    notes: String(form.get('notes') ?? '').trim() || null,
+    image_url: String(form.get('image_url') ?? '').trim() || null,
+  });
+
+  return Astro.redirect(`/assets/${asset.id}`);
+}
+---
+
+<Layout title="新規登録">
+  <section class="max-w-3xl">
+    <h1 class="font-display text-3xl font-bold">資産を登録</h1>
+    <p class="mt-1 text-sm text-ink-muted">
+      製品名を入れるだけでカテゴリ判定や参考相場の更新ができます。
+    </p>
+    <div class="mt-6">
+      <AssetForm action="/assets/new" method="POST" />
+    </div>
+  </section>
+</Layout>

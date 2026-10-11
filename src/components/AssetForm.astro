@@ -1,0 +1,213 @@
+---
+import type { Asset } from '../types/asset';
+import { ASSET_CATEGORIES, ASSET_CONDITIONS, CONDITION_LABELS } from '../types/asset';
+import MarketPriceBtn from './MarketPriceBtn';
+
+interface Props {
+  asset?: Asset | null;
+  action: string;
+  method?: 'POST' | 'PUT';
+}
+
+const { asset = null, action, method = 'POST' } = Astro.props;
+const isEdit = Boolean(asset);
+---
+
+<form
+  id="asset-form"
+  method="POST"
+  action={action}
+  class="space-y-6 rounded-xl bg-surface-elevated p-6 shadow-panel ring-1 ring-line"
+>
+  <input type="hidden" name="_method" value={method} />
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <label class="block sm:col-span-2">
+      <span class="mb-1.5 block text-sm font-medium text-ink">製品名</span>
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <input
+          id="name"
+          name="name"
+          required
+          value={asset?.name ?? ''}
+          placeholder="例: iPad Air (第5世代)"
+          class="w-full rounded-md border border-line bg-white px-3 py-2.5 text-ink outline-none ring-accent/30 focus:ring-2"
+        />
+        <button
+          type="button"
+          id="auto-category-btn"
+          class="shrink-0 rounded-md bg-accent-soft px-3 py-2.5 text-sm font-semibold text-accent transition hover:brightness-95"
+        >
+          カテゴリ自動判定
+        </button>
+      </div>
+      <p id="category-hint" class="mt-1.5 text-xs text-ink-muted"></p>
+    </label>
+
+    <label class="block">
+      <span class="mb-1.5 block text-sm font-medium text-ink">カテゴリ</span>
+      <select
+        id="category"
+        name="category"
+        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
+      >
+        {
+          ASSET_CATEGORIES.map((category) => (
+            <option value={category} selected={asset?.category === category}>
+              {category}
+            </option>
+          ))
+        }
+      </select>
+    </label>
+
+    <label class="block">
+      <span class="mb-1.5 block text-sm font-medium text-ink">ブランド</span>
+      <input
+        name="brand"
+        value={asset?.brand ?? ''}
+        placeholder="例: Apple"
+        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
+      />
+    </label>
+
+    <label class="block">
+      <span class="mb-1.5 block text-sm font-medium text-ink">購入価格 (円)</span>
+      <input
+        id="purchase_price"
+        name="purchase_price"
+        type="number"
+        min="0"
+        step="1"
+        value={asset?.purchase_price ?? ''}
+        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
+      />
+    </label>
+
+    <label class="block">
+      <span class="mb-1.5 block text-sm font-medium text-ink">購入日</span>
+      <input
+        name="purchase_date"
+        type="date"
+        value={asset?.purchase_date ?? ''}
+        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
+      />
+    </label>
+
+    <label class="block">
+      <span class="mb-1.5 block text-sm font-medium text-ink">推定相場 (円)</span>
+      <input
+        id="market_price"
+        name="market_price"
+        type="number"
+        min="0"
+        step="1"
+        value={asset?.market_price ?? ''}
+        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
+      />
+    </label>
+
+    <label class="block">
+      <span class="mb-1.5 block text-sm font-medium text-ink">状態</span>
+      <select
+        id="condition"
+        name="condition"
+        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
+      >
+        {
+          ASSET_CONDITIONS.map((condition) => (
+            <option value={condition} selected={asset?.condition === condition}>
+              {CONDITION_LABELS[condition]}
+            </option>
+          ))
+        }
+      </select>
+    </label>
+
+    <label class="block sm:col-span-2">
+      <span class="mb-1.5 block text-sm font-medium text-ink">画像 URL</span>
+      <input
+        name="image_url"
+        type="url"
+        value={asset?.image_url ?? ''}
+        placeholder="https://..."
+        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
+      />
+    </label>
+
+    <label class="block sm:col-span-2">
+      <span class="mb-1.5 block text-sm font-medium text-ink">メモ</span>
+      <textarea
+        name="notes"
+        rows="3"
+        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
+      >{asset?.notes ?? ''}</textarea>
+    </label>
+  </div>
+
+  <div class="rounded-lg border border-dashed border-line bg-[#f7faf8] p-4">
+    <p class="mb-3 text-sm text-ink-muted">
+      製品名から参考相場を推定し、必要なら資産レコードへ反映します。
+    </p>
+    <MarketPriceBtn
+      client:load
+      assetId={asset?.id}
+      name={asset?.name ?? ''}
+      category={asset?.category}
+      condition={asset?.condition}
+      purchasePrice={asset?.purchase_price}
+    />
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3">
+    <button
+      type="submit"
+      class="rounded-md bg-ink px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-accent"
+    >
+      {isEdit ? '変更を保存' : '資産を登録'}
+    </button>
+    <a href="/assets" class="text-sm font-medium text-ink-muted hover:text-ink">
+      一覧へ戻る
+    </a>
+  </div>
+</form>
+
+<script>
+  const nameInput = document.getElementById('name') as HTMLInputElement | null;
+  const categorySelect = document.getElementById('category') as HTMLSelectElement | null;
+  const hint = document.getElementById('category-hint');
+  const autoBtn = document.getElementById('auto-category-btn');
+
+  autoBtn?.addEventListener('click', async () => {
+    if (!nameInput?.value.trim()) {
+      if (hint) hint.textContent = '製品名を入力してください';
+      return;
+    }
+
+    if (hint) hint.textContent = '判定中…';
+    try {
+      const res = await fetch('/api/auto-category', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: nameInput.value }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? '判定に失敗しました');
+
+      if (categorySelect) categorySelect.value = data.category;
+      if (hint) {
+        const keywords =
+          data.matchedKeywords?.length > 0
+            ? `（キーワード: ${data.matchedKeywords.join(', ')}）`
+            : '';
+        hint.textContent = `「${data.category}」と判定（信頼度 ${(data.confidence * 100).toFixed(0)}%）${keywords}`;
+      }
+    } catch (error) {
+      if (hint) {
+        hint.textContent =
+          error instanceof Error ? error.message : 'カテゴリ判定に失敗しました';
+      }
+    }
+  });
+
+</script>

@@ -1,0 +1,47 @@
+---
+const pathname = Astro.url.pathname;
+
+const links = [
+  { href: '/', label: 'ダッシュボード' },
+  { href: '/assets', label: '資産一覧' },
+  { href: '/assets/new', label: '新規登録' },
+];
+---
+
+<header class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+  <a href="/" class="group inline-flex flex-col gap-1 no-underline">
+    <span
+      class="font-display text-4xl font-extrabold tracking-tight text-ink transition-transform duration-300 group-hover:-translate-y-0.5 sm:text-5xl"
+    >
+      MerCalc
+    </span>
+    <span class="text-sm text-ink-muted">自宅内資産を、ひと目で把握する</span>
+  </a>
+
+  <nav aria-label="メインナビ" class="flex flex-wrap gap-2">
+    {
+      links.map((link) => {
+        const active =
+          link.href === '/'
+            ? pathname === '/'
+            : link.href === '/assets'
+              ? pathname === '/assets' ||
+                (pathname.startsWith('/assets/') && pathname !== '/assets/new')
+              : pathname === link.href;
+        return (
+          <a
+            href={link.href}
+            class:list={[
+              'rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200',
+              active
+                ? 'bg-accent text-white'
+                : 'bg-surface-elevated text-ink-muted ring-1 ring-line hover:text-ink',
+            ]}
+          >
+            {link.label}
+          </a>
+        );
+      })
+    }
+  </nav>
+</header>
