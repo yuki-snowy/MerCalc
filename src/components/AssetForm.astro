@@ -94,18 +94,30 @@ const isEdit = Boolean(asset);
       />
     </label>
 
-    <label class="block">
+    <div class="block sm:col-span-2">
       <span class="mb-1.5 block text-sm font-medium text-ink">推定相場 (円)</span>
-      <input
-        id="market_price"
-        name="market_price"
-        type="number"
-        min="0"
-        step="1"
-        value={asset?.market_price ?? ''}
-        class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
-      />
-    </label>
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-start">
+        <input
+          id="market_price"
+          name="market_price"
+          type="number"
+          min="0"
+          step="1"
+          value={asset?.market_price ?? ''}
+          class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2 sm:flex-1"
+        />
+        <div class="shrink-0 sm:pt-0">
+          <MarketPriceBtn
+            client:load
+            assetId={asset?.id}
+            name={asset?.name ?? ''}
+            category={asset?.category}
+            condition={asset?.condition}
+            purchasePrice={asset?.purchase_price}
+          />
+        </div>
+      </div>
+    </div>
 
     <label class="block">
       <span class="mb-1.5 block text-sm font-medium text-ink">状態</span>
@@ -130,9 +142,12 @@ const isEdit = Boolean(asset);
         name="image_url"
         type="url"
         value={asset?.image_url ?? ''}
-        placeholder="https://..."
+        placeholder="未設定時はカテゴリ既定画像を表示"
         class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
       />
+      <p class="mt-1.5 text-xs text-ink-muted">
+        空欄のときはカテゴリごとのデフォルト画像を使います。URL を入れるとその画像を優先します。
+      </p>
     </label>
 
     <label class="block sm:col-span-2">
@@ -143,20 +158,6 @@ const isEdit = Boolean(asset);
         class="w-full rounded-md border border-line bg-white px-3 py-2.5 outline-none ring-accent/30 focus:ring-2"
       >{asset?.notes ?? ''}</textarea>
     </label>
-  </div>
-
-  <div class="rounded-lg border-2 border-dashed border-accent/30 bg-accent-soft/50 p-4">
-    <p class="mb-3 text-sm text-ink-muted">
-      製品名から参考相場を推定し、必要なら資産レコードへ反映します。
-    </p>
-    <MarketPriceBtn
-      client:load
-      assetId={asset?.id}
-      name={asset?.name ?? ''}
-      category={asset?.category}
-      condition={asset?.condition}
-      purchasePrice={asset?.purchase_price}
-    />
   </div>
 
   <div class="flex flex-wrap items-center gap-3">
@@ -209,5 +210,4 @@ const isEdit = Boolean(asset);
       }
     }
   });
-
 </script>
