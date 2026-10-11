@@ -8,8 +8,10 @@ import {
   signalFromDiff,
 } from './depreciation';
 
-function stub(partial: Partial<Asset> & Pick<Asset, 'id' | 'name'>): Asset {
+function stub(partial: Partial<Asset> = {}): Asset {
   return {
+    id: 'stub',
+    name: 'Stub Asset',
     user_id: null,
     category: 'ガジェット',
     brand: null,
