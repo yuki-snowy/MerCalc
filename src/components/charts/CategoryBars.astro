@@ -10,8 +10,12 @@ const { shares } = Astro.props;
 ---
 
 <figure>
-  <figcaption class="font-display text-lg font-bold">カテゴリ別の資産状況</figcaption>
-  <p class="mt-1 text-center text-sm text-ink-muted">推定相場の構成比と件数</p>
+  <figcaption class="text-center font-display text-lg font-bold lg:text-left">
+    カテゴリ別の資産状況
+  </figcaption>
+  <p class="mt-1 text-center text-sm text-ink-muted lg:text-left">
+    推定相場の構成比と件数
+  </p>
 
   {
     shares.length === 0 ? (

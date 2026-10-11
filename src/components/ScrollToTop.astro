@@ -1,0 +1,37 @@
+---
+---
+
+<button
+  id="scroll-to-top"
+  type="button"
+  class="scroll-to-top btn-beep btn-beep-accent fixed bottom-5 right-5 z-[60] flex h-11 w-11 items-center justify-center rounded-md"
+  aria-label="ページ上部へ戻る"
+  title="上部へ戻る"
+  aria-hidden="true"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.5"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+    class="h-5 w-5"
+    aria-hidden="true"
+  >
+    <path d="M12 19V5"></path>
+    <path d="M6 11l6-6 6 6"></path>
+  </svg>
+</button>
+
+<script>
+  import { initScrollToTop } from '../utils/scroll-to-top';
+
+  const mount = () => {
+    initScrollToTop(document.getElementById('scroll-to-top'));
+  };
+
+  mount();
+  document.addEventListener('astro:page-load', mount);
+</script>
