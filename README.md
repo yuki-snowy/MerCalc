@@ -8,10 +8,10 @@
 
 | 層 | 技術 | プラン |
 | --- | --- | --- |
-| フロント / SSR | Astro (Hybrid/SSR) + TypeScript + Tailwind CSS + React Islands | — |
+| フロント / SSR | Astro (SSR) + TypeScript + Tailwind CSS + React Islands | — |
 | DB / Auth / Storage | Supabase | Free Tier |
-| ホスティング | Vercel | Hobby |
-| 相場 API | Astro Server Endpoints | Vercel Functions 内で実行 |
+| ホスティング | Netlify | Free |
+| 相場 API | Astro Server Endpoints | Netlify Functions 内で実行 |
 
 個人利用の範囲であれば、更新・保守込みで Zero Cost 運用を想定しています。
 
@@ -19,7 +19,7 @@
 
 - **メルカリ等の直接スクレイピングは行いません。** 利用規約・可用性の観点から、カテゴリ・状態・購入価格に基づく**推定相場**を返します。実相場確認用にメルカリ検索 URL を併記します。
 - Supabase Free Tier はプロジェクト休止や制限があるため、長期間アクセスがない場合は再起動が必要になることがあります。
-- Vercel Hobby は商用利用や帯域に制限があります。個人利用想定です。
+- Netlify Free は帯域・Functions 実行時間に制限があります。個人利用想定です。
 - 初期マイグレーションには個人利用向けの `anon` 全操作ポリシーが含まれます。Auth を本格運用する場合は当該ポリシーを削除してください。
 
 ## セットアップ
@@ -53,12 +53,24 @@ PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 PUBLIC_DEMO_MODE=false
 ```
 
-### 4. Vercel デプロイ
+### 4. Netlify デプロイ
 
-1. GitHub 等へ push
-2. Vercel で Import
-3. Environment Variables に上記を設定
-4. Framework Preset: Astro（`@astrojs/vercel` 済み）
+1. GitHub の `yuki-snowy/MerCalc` を Netlify に Import
+2. Build settings（`netlify.toml` 済みなら自動検出）
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+   - Node version: `22`
+3. Site configuration → Environment variables に少なくとも次を設定
+
+```env
+PUBLIC_DEMO_MODE=true
+# Supabase 利用時
+# PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+# PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+# PUBLIC_DEMO_MODE=false
+```
+
+4. Deploy。SSR / `/api/*` は `@astrojs/netlify` 経由で Netlify Functions として動きます。
 
 ## 主要ルート
 

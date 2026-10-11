@@ -2,7 +2,7 @@
   "name": "mercalc",
   "type": "module",
   "version": "0.1.0",
-  "description": "自宅内資産管理 Web アプリケーション (Astro + Supabase + Vercel)",
+  "description": "自宅内資産管理 Web アプリケーション (Astro + Supabase + Netlify)",
   "engines": {
     "node": ">=22.12.0"
   },
@@ -19,8 +19,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/netlify": "^8.2.9",
     "@astrojs/react": "^7.0.1",
-    "@astrojs/vercel": "^11.0.13",
     "@supabase/supabase-js": "^2.117.3",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.3.0",
