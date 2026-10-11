@@ -2,13 +2,13 @@
 import Layout from '../layouts/Layout.astro';
 import TrendChart from '../components/charts/TrendChart.astro';
 import CategoryBars from '../components/charts/CategoryBars.astro';
-import DepreciationSignal from '../components/DepreciationSignal.astro';
 import AssetCard from '../components/AssetCard.astro';
+import { SIGNAL_LABELS } from '../services/depreciation';
 import { buildCategoryShares, buildMonthlyTrend } from '../services/analytics';
 import { buildDashboardStats, listAssets } from '../services/assets';
 import { buildDepreciationSummary } from '../services/depreciation';
 import { isDemoMode, isSupabaseConfigured } from '../lib/supabase';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, formatSignedCurrency } from '../utils/formatters';
 
 const assets = await listAssets();
 const stats = buildDashboardStats(assets);
@@ -18,77 +18,101 @@ const depreciation = buildDepreciationSummary(assets);
 const recentAssets = assets.slice(0, 5);
 const demoMode = isDemoMode();
 const supabaseReady = isSupabaseConfigured();
+
+const signalTone =
+  depreciation.signal === 'plus'
+    ? 'text-accent'
+    : depreciation.signal === 'minus'
+      ? 'text-ink'
+      : 'text-ink-muted';
 ---
 
 <Layout title="ダッシュボード">
-  <section class="text-center">
-    <p class="text-xs font-bold tracking-[0.18em] text-accent">DASHBOARD</p>
-    <h1 class="mt-2 font-display text-3xl font-bold">資産サマリー</h1>
-    <p class="mt-2 whitespace-nowrap text-sm text-ink-muted">
-      推定相場・減価償却後簿価・対簿価のプラス/マイナスをまとめて確認します。
-    </p>
-  </section>
-
-  <section class="mx-auto mt-8 max-w-xl border-2 border-ink bg-white px-5 py-6 text-center">
-    <p class="font-display text-5xl font-black tabular-nums text-accent sm:text-6xl">
-      {formatCurrency(stats.totalMarketValue)}
-    </p>
-    <p class="mt-2 text-sm text-ink-muted">推定相場合計 · {stats.totalAssets} 点</p>
-
-    <div class="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
-      <span class="tabular-nums">
-        簿価 <strong>{formatCurrency(depreciation.totalBookValue)}</strong>
-      </span>
-      <span class="text-ink-muted" aria-hidden="true">→</span>
-      <span class="tabular-nums">
-        相場 <strong class="text-accent">{formatCurrency(depreciation.totalMarketValue)}</strong>
-      </span>
-    </div>
-
-    <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
-      <DepreciationSignal signal={depreciation.signal} vsBook={depreciation.vsBook} />
-      {
-        depreciation.comparableCount > 0 && (
-          <span class="text-xs text-ink-muted">
-            +{depreciation.plusCount} / -{depreciation.minusCount}
-          </span>
-        )
-      }
-    </div>
-
-    <p class="mt-4 text-xs leading-relaxed text-ink-muted">
-      定額法・残存10%の目安簿価です（税務計算ではありません）
-    </p>
-
-    {
-      demoMode && (
-        <p class="mt-3 border-t border-ink/10 pt-3 text-xs text-ink-muted">
-          デモモード —
-          {supabaseReady
-            ? 'PUBLIC_DEMO_MODE=false で Supabase 接続'
-            : '環境変数設定で永続保存に切替可'}
+  <section class="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-stretch lg:gap-12">
+    <!-- 左: 金額（右カラムと同じ高さに伸ばし、内側を均等配置） -->
+    <div class="flex h-full flex-col justify-between text-center lg:border-r lg:border-ink/15 lg:pr-10 lg:text-left">
+      <div>
+        <p class="text-xs font-bold tracking-[0.18em] text-accent">DASHBOARD</p>
+        <h1 class="mt-2 font-display text-2xl font-bold">資産サマリー</h1>
+        <p class="mt-2 text-sm text-ink-muted lg:max-w-[18rem]">
+          相場と簿価の差分をひと目で確認
         </p>
-      )
-    }
+      </div>
+
+      <div class="py-8 lg:py-0">
+        <p class="font-display text-5xl font-black tabular-nums tracking-tight text-accent sm:text-6xl">
+          {formatCurrency(stats.totalMarketValue)}
+        </p>
+        <p class="mt-2 text-sm text-ink-muted">
+          推定相場合計 · {stats.totalAssets} 点
+        </p>
+
+        <dl class="mx-auto mt-8 max-w-xs space-y-3 text-sm lg:mx-0">
+          <div class="flex items-baseline justify-between gap-4 border-b border-ink/15 pb-3">
+            <dt class="text-ink-muted">簿価</dt>
+            <dd class="font-bold tabular-nums">{formatCurrency(depreciation.totalBookValue)}</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-4 border-b border-ink/15 pb-3">
+            <dt class="text-ink-muted">相場</dt>
+            <dd class="font-bold tabular-nums text-accent">
+              {formatCurrency(depreciation.totalMarketValue)}
+            </dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-4 pt-1">
+            <dt class="text-ink-muted">対簿価</dt>
+            <dd class:list={['text-right font-bold tabular-nums', signalTone]}>
+              <span class="block font-display text-base">
+                {SIGNAL_LABELS[depreciation.signal]}
+              </span>
+              <span class="text-sm">{formatSignedCurrency(depreciation.vsBook)}</span>
+              {
+                depreciation.comparableCount > 0 && (
+                  <span class="mt-0.5 block text-xs font-medium text-ink-muted">
+                    +{depreciation.plusCount} / -{depreciation.minusCount}
+                  </span>
+                )
+              }
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class="mx-auto max-w-xs text-xs leading-relaxed text-ink-muted lg:mx-0">
+          定額法・残存10%の目安（税務計算ではありません）
+        </p>
+        {
+          demoMode && (
+            <p class="mx-auto mt-2 max-w-xs text-xs text-ink-muted lg:mx-0">
+              デモモード —
+              {supabaseReady
+                ? 'PUBLIC_DEMO_MODE=false で Supabase 接続'
+                : '環境変数設定で永続保存に切替可'}
+            </p>
+          )
+        }
+      </div>
+    </div>
+
+    <!-- 右: グラフ2段（左と同じ高さ内で上下を等分） -->
+    <div class="flex min-h-0 min-w-0 flex-col lg:h-full">
+      <div class="flex min-h-0 flex-1 flex-col justify-center">
+        <TrendChart points={trend} />
+      </div>
+      <div class="mt-8 flex min-h-0 flex-1 flex-col justify-center border-t border-ink/15 pt-8 lg:mt-0 lg:pt-8">
+        <CategoryBars shares={categoryShares} />
+      </div>
+    </div>
   </section>
 
-  <section class="mt-10 grid gap-8 lg:grid-cols-2 lg:gap-6">
-    <div class="min-w-0 border-t-4 border-accent pt-5 text-center [&_figcaption]:text-center [&_ul]:text-left">
-      <TrendChart points={trend} />
-    </div>
-    <div class="min-w-0 border-t-4 border-ink pt-5 text-center [&_figcaption]:text-center [&_ul]:text-left">
-      <CategoryBars shares={categoryShares} />
-    </div>
-  </section>
-
-  <section class="mt-14">
-    <div class="border-b-2 border-ink pb-3 text-center">
-      <h2 class="font-display text-2xl font-bold">最近の登録</h2>
-    </div>
+  <section class="mt-16">
+    <h2 class="border-b border-ink/20 pb-3 text-center font-display text-2xl font-bold lg:text-left">
+      最近の登録
+    </h2>
 
     {
       recentAssets.length === 0 ? (
-        <p class="py-10 text-center text-sm text-ink-muted">
+        <p class="py-10 text-center text-sm text-ink-muted lg:text-left">
           まだ資産がありません。まずは1件登録してみましょう。
         </p>
       ) : (
@@ -102,19 +126,4 @@ const supabaseReady = isSupabaseConfigured();
       )
     }
   </section>
-
-  <div class="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-    <a
-      href="/assets/new"
-      class="btn-beep btn-beep-accent min-w-[11rem] rounded-md px-4 py-2.5 text-center text-sm font-bold"
-    >
-      新規登録
-    </a>
-    <a
-      href="/assets"
-      class="btn-beep min-w-[11rem] rounded-md bg-white px-4 py-2.5 text-center text-sm font-bold"
-    >
-      資産一覧
-    </a>
-  </div>
 </Layout>

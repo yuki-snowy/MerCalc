@@ -140,15 +140,72 @@ const depreciation = calcAssetDepreciation(asset);
       <AssetForm asset={asset} action={`/assets/${asset.id}`} method="PUT" />
     </div>
 
-    <form method="POST" action={`/assets/${asset.id}`} class="mt-6 text-center">
+    <form
+      id="delete-asset-form"
+      method="POST"
+      action={`/assets/${asset.id}`}
+      class="mt-6 text-center"
+    >
       <input type="hidden" name="_method" value="DELETE" />
       <button
-        type="submit"
+        id="delete-asset-trigger"
+        type="button"
         class="btn-beep rounded-md border-[color:var(--color-danger)] bg-white px-4 py-2 text-sm font-bold text-[color:var(--color-danger)] hover:bg-accent-soft"
-        onclick="return confirm('この資産を削除しますか？');"
       >
         資産を削除
       </button>
     </form>
   </section>
+
+  <dialog
+    id="delete-asset-dialog"
+    class="delete-confirm-dialog m-auto w-[min(22rem,calc(100%-2rem))] rounded-lg border-0 bg-transparent p-0 text-ink backdrop:bg-ink/40"
+    aria-labelledby="delete-asset-title"
+  >
+    <div class="pixel-panel rounded-lg bg-white p-5 text-center shadow-panel">
+      <p
+        id="delete-asset-title"
+        class="font-display text-lg font-bold"
+      >
+        この資産を削除しますか？
+      </p>
+      <p class="mt-2 text-sm text-ink-muted">
+        「{asset.name}」を削除します。この操作は取り消せません。
+      </p>
+      <div class="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+        <button
+          type="button"
+          data-delete-cancel
+          class="btn-beep rounded-md bg-white px-4 py-2 text-sm font-bold"
+        >
+          キャンセル
+        </button>
+        <button
+          type="button"
+          data-delete-confirm
+          class="btn-beep btn-beep-accent rounded-md px-4 py-2 text-sm font-bold"
+        >
+          削除する
+        </button>
+      </div>
+    </div>
+  </dialog>
 </Layout>
+
+<script>
+  import { initDeleteConfirm } from '../../utils/delete-confirm';
+
+  let dispose = () => {};
+
+  const mount = () => {
+    dispose();
+    dispose = initDeleteConfirm({
+      form: document.getElementById('delete-asset-form') as HTMLFormElement | null,
+      trigger: document.getElementById('delete-asset-trigger'),
+      dialog: document.getElementById('delete-asset-dialog') as HTMLDialogElement | null,
+    });
+  };
+
+  mount();
+  document.addEventListener('astro:page-load', mount);
+</script>

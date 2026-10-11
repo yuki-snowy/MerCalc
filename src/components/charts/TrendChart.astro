@@ -51,12 +51,12 @@ const latest = points[points.length - 1];
 ---
 
 <figure class="trend-chart">
-  <div class="mb-3 space-y-2 text-center">
+  <div class="mb-4 space-y-1.5 text-center lg:text-left">
     <figcaption class="font-display text-lg font-bold">月ごとの資産推移</figcaption>
     <p class="text-sm text-ink-muted">
-      購入日を起点にした累積保有額の見え方です
+      購入日を起点にした累積保有額
     </p>
-    <ul class="flex flex-wrap justify-center gap-4 text-xs font-medium">
+    <ul class="flex flex-wrap justify-center gap-4 text-xs font-medium lg:justify-start">
       <li class="inline-flex items-center gap-2">
         <span class="h-2 w-5 bg-accent"></span>
         推定相場累計
@@ -136,7 +136,7 @@ const latest = points[points.length - 1];
 
   {
     latest && (
-      <p class="mt-2 text-center text-xs text-ink-muted">
+      <p class="mt-2 text-center text-xs text-ink-muted lg:text-left">
         直近 {latest.label}: 累計購入 {formatCurrency(latest.cumulativePurchase)} /
         累計相場 {formatCurrency(latest.cumulativeMarket)} / {latest.assetCount} 点
       </p>
