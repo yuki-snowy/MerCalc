@@ -10,28 +10,28 @@ const { shares } = Astro.props;
 ---
 
 <figure>
-  <figcaption class="text-center font-display text-lg font-bold lg:text-left">
+  <figcaption class="text-center font-display text-base font-bold lg:text-left">
     カテゴリ別の資産状況
   </figcaption>
-  <p class="mt-1 text-center text-sm text-ink-muted lg:text-left">
+  <p class="mt-0.5 text-center text-sm text-ink-muted lg:text-left">
     推定相場の構成比と件数
   </p>
 
   {
     shares.length === 0 ? (
-      <p class="mt-6 text-sm text-ink-muted">まだ集計できる資産がありません。</p>
+      <p class="mt-3 text-sm text-ink-muted">まだ集計できる資産がありません。</p>
     ) : (
-      <ul class="mt-5 space-y-4">
+      <ul class="mt-3 space-y-2.5">
         {shares.map((item, index) => (
-          <li class="grid grid-cols-[5.5rem_1fr_auto] items-center gap-3">
+          <li class="grid grid-cols-[5.5rem_1fr_auto] items-center gap-2.5">
             <span class="truncate font-display text-sm font-bold">{item.category}</span>
-            <div class="relative h-3 bg-ink/10">
+            <div class="relative h-2.5 bg-ink/10">
               <div
                 class="absolute inset-y-0 left-0 bg-accent transition-[width] duration-500"
                 style={`width: ${Math.max(item.share * 100, item.count > 0 ? 4 : 0)}%; animation-delay: ${index * 60}ms`}
               />
             </div>
-            <span class="min-w-[7.5rem] text-right text-xs tabular-nums text-ink-muted">
+            <span class="min-w-[7.5rem] text-right text-xs leading-snug tabular-nums text-ink-muted">
               {(item.share * 100).toFixed(0)}% · {item.count}件
               <br />
               <span class="font-bold text-ink">{formatCurrency(item.marketValue)}</span>
