@@ -12,7 +12,7 @@ interface Props {
 }
 
 const {
-  title = 'MerCalc',
+  title = 'MerValue',
   description = '自宅内の製品・資材を可視化し、資産価値を把握する管理アプリ',
   shell = 'app',
 } = Astro.props;
@@ -33,7 +33,7 @@ const {
       rel="stylesheet"
     />
     <meta name="generator" content={Astro.generator} />
-    <title>{title === 'MerCalc' ? title : `${title} | MerCalc`}</title>
+    <title>{title === 'MerValue' ? title : `${title} | MerValue`}</title>
   </head>
   <body>
     {shell !== 'top' && <Header />}
@@ -57,7 +57,7 @@ const {
         shell !== 'top' && (
           <footer class="mt-14 border-t border-ink/10 pt-6 text-center text-sm text-ink-muted max-sm:mb-2">
             <p class="font-display">
-              MerCalc
+              MerValue
               <span class="mx-2 text-accent">▮</span>
               家の中のモノ、いまいくら？
             </p>

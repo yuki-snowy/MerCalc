@@ -1,4 +1,4 @@
-# MerCalc
+# MerValue
 
 **家の中のモノ、いまいくら？**
 
@@ -186,4 +186,4 @@ supabase/migrations/
 ## ライセンス / 作者
 
 個人開発プロジェクト（ポートフォリオ用途を含む）です。  
-リポジトリ: [yuki-snowy/MerCalc](https://github.com/yuki-snowy/MerCalc)
+リポジトリ: [yuki-snowy/MerValue](https://github.com/yuki-snowy/MerValue)
