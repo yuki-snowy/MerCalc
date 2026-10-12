@@ -1,8 +1,8 @@
 {
-  "name": "mercalc",
+  "name": "mervalue",
   "type": "module",
   "version": "0.1.0",
-  "description": "自宅内資産管理 Web アプリケーション (Astro + Supabase + Netlify)",
+  "description": "自宅内資産管理 Web アプリケーション MerValue (Astro + Supabase + Netlify)",
   "engines": {
     "node": ">=22.12.0"
   },

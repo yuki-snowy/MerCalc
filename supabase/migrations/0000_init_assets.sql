@@ -1,4 +1,4 @@
--- MerCalc: 自宅内資産管理の初期スキーマ
+-- MerValue: 自宅内資産管理の初期スキーマ
 -- Supabase SQL Editor または `supabase db push` で適用してください。
 
 create extension if not exists "pgcrypto";
